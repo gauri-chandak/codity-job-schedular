@@ -57,7 +57,7 @@ COMPLETED                Retry
                    No        Yes
                    ↓          ↓
                 Retry        DLQ
-
+```
 
 ## Project Structure
 
@@ -72,6 +72,7 @@ codity-job-schedular/
 │   └── ER2.png
 │
 └── README.md
+```
 
 ## Getting Started
 
