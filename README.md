@@ -38,29 +38,40 @@ Core tables: users, organizations, projects, queues, jobs, retry policies, worke
 
 ## Job Lifecycle
 
-Create Job → Queue → Worker Claims → Execute
-│
-┌─────────────┴─────────────┐
-Success Failure
-│ │
-COMPLETED Retry
-│
-Max attempts reached?
-├── No → Retry again
-└── Yes → Dead Letter Queue
+```text
+Create Job
+    ↓
+Queue
+    ↓
+Worker Claims Job
+    ↓
+Execute
+    ↓
+ ┌───────────┴───────────┐
+Success               Failure
+   ↓                      ↓
+COMPLETED                Retry
+                          ↓
+                  Max Attempts?
+                    ↓        ↓
+                   No        Yes
+                   ↓          ↓
+                Retry        DLQ
 
 
 ## Project Structure
 
+```text
 codity-job-schedular/
+│
 ├── backend/
 ├── frontend/
 ├── worker/
 ├── docs/
-│ ├── architecture.png
-│ └── ER2.png
+│   ├── architecture.png
+│   └── ER2.png
+│
 └── README.md
-
 
 ## Getting Started
 
