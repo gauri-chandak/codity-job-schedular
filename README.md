@@ -1,206 +1,88 @@
 # Codity Job Scheduler
 
-A distributed background job scheduling platform built with React, Node.js, Express.js, MySQL, and a worker service.
+A distributed background job scheduling platform with a REST API, worker service, and a React dashboard for monitoring jobs, queues, and workers.
 
-## Overview
+## Features
 
-Codity Job Scheduler allows users to create and manage background jobs through a REST API and monitor them through a web dashboard.
-
-The system supports:
-
-- Job creation and scheduling
-- Queue management
-- Background job processing
-- Worker registration and monitoring
-- Job retries
-- Exponential retry strategy
-- Dead Letter Queue (DLQ)
-- Job execution tracking
-- Worker heartbeat monitoring
-- Dashboard metrics
+- Job creation & scheduling
+- Queue management with pause/resume
+- Background job processing via a dedicated worker service
+- Job retries — fixed, linear, and exponential strategies
+- Dead Letter Queue (DLQ) for jobs that exceed max attempts
+- Worker registration, heartbeats, and status monitoring
+- Dashboard metrics and job execution tracking
 
 ## Tech Stack
 
-### Frontend
-- React
-- Vite
-- Axios
-- CSS
+| Layer | Technology |
+|---|---|
+| Frontend | React, Vite, Axios |
+| Backend | Node.js, Express.js, JWT |
+| Database | MySQL |
+| Worker | Node.js |
 
-### Backend
-- Node.js
-- Express.js
-- JWT Authentication
-- REST API
+## Architecture
 
-### Database
-- MySQL
+![Architecture](docs/architecture.png)
 
-### Worker
-- Node.js
-- Background polling
-- Job execution
-- Retry handling
-- Worker heartbeat
+- **React Dashboard** — monitor jobs, queues, and workers
+- **Express API** — auth, projects, queues, jobs, metrics
+- **Worker Service** — claims jobs, handles retries, sends heartbeats
+- **MySQL** — shared database for API and worker
 
-## System Architecture
-
-![System Architecture](docs/architecture.png)
-
-The system consists of three main parts:
-
-1. **React Dashboard**  
-   Provides the user interface for monitoring jobs, queues and workers.
-
-2. **Express.js API**  
-   Handles authentication, projects, queues, jobs and metrics.
-
-3. **Worker Service**  
-   Polls the database for jobs, executes them, handles retries and updates job status.
-
-MySQL is used as the central database shared by the API and worker.
-
-## Database Design
+## Database Schema
 
 ![ER Diagram](docs/ER2.png)
 
-The database contains entities for:
+Core tables: users, organizations, projects, queues, jobs, retry policies, workers, job executions, job logs, dead letter jobs, worker heartbeats.
 
-- Users
-- Organizations
-- Projects
-- Queues
-- Jobs
-- Retry Policies
-- Workers
-- Job Executions
-- Job Logs
-- Dead Letter Jobs
-- Worker Heartbeats
+## Job Lifecycle
 
-## Job Processing Flow
-
-```text
-User
-  ↓
-Create Job
-  ↓
-Queue
-  ↓
-Worker Claims Job
-  ↓
-Execute Job
-  ↓
- ┌───────────────┐
- │               │
-Success        Failure
- │               │
- ↓               ↓
-COMPLETED      Retry
-                 ↓
-              FAILED
-                 ↓
-          Max Attempts?
-            ↓       ↓
-           No       Yes
-           ↓         ↓
-         Retry      DLQ
-
-API Modules
-
-The backend provides REST APIs for:
-
-Authentication
-Projects
-Queues
-Jobs
-Workers
-Metrics
-Retry and Dead Letter Queue
-
-Failed jobs can be retried according to the configured retry policy.
-
-The project currently supports:
-
-Fixed retry
-Linear retry
-Exponential retry
-
-When a job reaches its maximum number of attempts, it is moved to the Dead Letter Queue (DLQ).
-
-Worker Monitoring
-
-Workers periodically send heartbeat information to the backend database.
-
-This allows the dashboard to display:
-
-Worker status
-Worker hostname
-Last heartbeat
-Active workers
-Offline workers
-Testing
-
-The system was tested for:
-
-Successful job execution
-Failed job execution
-Job retry
-Maximum retry attempts
-Dead Letter Queue
-Scheduled jobs
-Worker registration
-Worker heartbeat
-Queue pause/resume
-Dashboard metrics
-
-Project Structure
-codity-job-scheduler/
+Create Job → Queue → Worker Claims → Execute
 │
+┌─────────────┴─────────────┐
+Success Failure
+│ │
+COMPLETED Retry
+│
+Max attempts reached?
+├── No → Retry again
+└── Yes → Dead Letter Queue
+
+
+## Project Structure
+
+codity-job-schedular/
 ├── backend/
-│   ├── controllers/
-│   ├── routes/
-│   ├── middleware/
-│   └── server.js
-│
-├── worker/
-│   └── worker.js
-│
 ├── frontend/
-│   └── React dashboard
-│
+├── worker/
 ├── docs/
-│   ├── architecture.png
-│   └── er-diagram.png
-│
+│ ├── architecture.png
+│ └── ER2.png
 └── README.md
 
-Running the Project
-Start Backend
+
+## Getting Started
+
+Make sure MySQL is running and configured before starting the services.
+
+**1. Backend**
+```bash
 cd backend
 npm install
 npm start
-Start Worker
+```
 
-Open another terminal:
-
+**2. Worker**
+```bash
 cd worker
 npm install
 npm start
-Start Frontend
+```
 
-Open another terminal:
-
+**3. Frontend**
+```bash
 cd frontend
 npm install
 npm run dev
-
-Make sure MySQL is running and the database configuration is correctly set in the backend.
-
-Conclusion
-
-Codity Job Scheduler demonstrates a distributed background job processing system with queues, workers, retries, monitoring and failure handling through a simple web dashboard.
-
-
----
-
+```
